@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block body %}
+<div class="wrap"><div class="auth card">
+  <h2>Create citizen account</h2>
+  <p class="muted">Takes 20 seconds. We use your mobile / e-mail only to send complaint updates.</p>
+  {% include "_flash.html" %}
+  <form method="post">
+    <label>Full name</label><input name="name" required value="{{ request.form.name }}">
+    <label>Mobile number</label><input name="mobile" required maxlength="10" placeholder="10-digit mobile" value="{{ request.form.mobile }}">
+    <label>E-mail</label><input name="email" type="email" required value="{{ request.form.email }}">
+    <label>Password</label><input name="password" type="password" required minlength="6">
+    <button class="btn" style="width:100%;margin-top:16px">Create account</button>
+  </form>
+  <p class="small" style="margin-top:12px">Already registered? <a href="/login">Login</a></p>
+</div></div>
+{% endblock %}

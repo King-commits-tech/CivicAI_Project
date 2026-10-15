@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% block title %}Live Grievance Tracker | CivicAI{% endblock %}
+{% block body %}
+<!-- Embedded UI Framework for Premium Tracking Layouts & Accessibility -->
+<style>
+  :root {
+    --brand-dark: #122c34;
+    --brand-light: #224854;
+    --accent-green: #00e676;
+    --accent-blue: #1565c0;
+    --card-shadow: 0 12px 30px rgba(0,0,0,0.04);
+  }
+
+  .track-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+  
+  .search-header-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: var(--card-shadow);
+    text-align: center;
+    margin-bottom: 30px;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .search-header-card h2 { margin: 0 0 12px 0; color: var(--brand-dark); font-weight: 800; }
+  
+  .track-box input {
+    flex: 1; padding: 16px 20px; border: 2px solid #e2e8f0; border-radius: 12px;
+    font-size: 16px; outline: none; transition: border-color 0.2s;
+  }
+  .track-box input:focus { border-color: var(--brand-light); }
+  .track-box button {
+    background: var(--brand-dark); color: white; padding: 0 28px; border: none;
+    border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px;
+  }
+  
+  /* Giant Premium Stepper Architecture */
+  .stepper-panel {
+    background: white; border-radius: 24px; padding: 35px;
+    box-shadow: var(--card-shadow); border: 1px solid rgba(0,0,0,0.05); margin-bottom: 24px;
+  }
+  .stepper-flex {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    position: relative; margin-top: 24px; flex-wrap: wrap; gap: 20px;
+  }
+  
+  .step-node {
+    display: flex; flex-direction: column; align-items: center; flex: 1;
+    min-width: 110px; text-align: center; position: relative; z-index: 2;
+  }
+  .step-circle {
+    width: 55px; height: 50px; border-radius: 50%; background: #f1f3f9;
+    color: #a0aec0; display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; font-weight: bold; border: 3px solid #f1f3f9; transition: all 0.3s;
+  }
+  .step-label { font-size: 13px; font-weight: 700; color: #718096; margin-top: 8px; }
+  
+  /* Dynamic Active States Engine */
+  .step-node.done .step-circle { background: #e8f5e9; color: #2e7d32; border-color: #2e7d32; }
+  .step-node.done .step-label { color: #2e7d32; }
+  .step-node.now .step-circle { background: #e3f2fd; color: #1565c0; border-color: #1565c0; animation: pulseGlow 1.5s infinite; }
+  .step-node.now .step-label { color: #1565c0; }
+  
+  /* Modern Responsive Info Blocks */
+  .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-top: 24px; }
+  .info-card { background: white; border-radius: 20px; padding: 24px; border: 1px solid rgba(0,0,0,0.06); box-shadow: var(--card-shadow); }
+  .info-card h3 { margin: 0 0 16px 0; color: var(--brand-dark); font-size: 16px; border-left: 4px solid var(--brand-light); padding-left: 8px; }
+  
+  .kv-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f3f9; font-size: 14px; }
+  .kv-row:last-child { border-bottom: none; }
+  .kv-row span { color: #718096; font-weight: 500; }
+  .kv-row b { color: #2d3748; }
+
+  /* Premium Star Feedback Row */
+  .stars span { font-size: 2.2rem; cursor: pointer; color: #e2e8f0; transition: color 0.2s; }
+  .stars span.on { color: #f5c030; }
+  
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0px rgba(21, 101, 192, 0.4); }
+    100% { box-shadow: 0 0 0 12px rgba(21, 101, 192, 0); }
+  }
+</style>
+
+<div class="track-container">
+  <!-- Top Global Search Control -->
+  <div class="search-header-card">
+    <h2>🔍 Live Status Tracker</h2>
+    <form class="track-box" style="display: flex; gap: 10px; max-width: 550px; margin: 0 auto;" onsubmit="event.preventDefault(); go(tid.value)">
+      <input id="tid" autocomplete="off" placeholder="Enter unique ID index e.g. CIV-..." value="{{ cid or '' }}">
+      <button class="btn" type="submit">Track →</button>
+    </form>
+  </div>
+
+  <div id="out" style="margin-top:20px"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const out = document.getElementById('out');
+const INIT_ID = {{ (cid or '') | tojson }};
+const FLOW = ['Submitted', 'Assigned', 'Under Review', 'Action Initiated', 'Resolved', 'Closed'];
+let current = null, timer = null;
+
+function go(id) {
+  id = (id || '').trim().toUpperCase(); if (!id) return;
+  history.replaceState(null, '', '/track/' + id); load(id);
+}
+
+async function load(id) {
+  try {
+    const j = await api('/api/track/' + id);
+    current = j; render(j);
+  } catch (e) { out.innerHTML = '<div class="info-card" style="text-align:center; color:#c62828; font-weight:bold;">❌ Ticket index mismatch. Check reference.</div>'; }
+}
+
+function stepper(c, hist) {
+  const reached = new Set(hist.map(h => h.status).filter(Boolean));
+  reached.add('Submitted'); reached.add('Assigned');
+  if (c.status === 'Reopened') { reached.delete('Resolved'); reached.delete('Closed'); }
+  if (c.status === 'Closed') FLOW.forEach(s => reached.add(s));
+  if (c.status === 'Resolved') ['Under Review', 'Action Initiated', 'Resolved'].forEach(s => reached.add(s));
+  
+  const icons = ["📩", "🏢", "👁️‍🗨️", "⚙️", "✅", "🔒"];
+  
+  let htmlStr = '<div class="stepper-flex">';
+  FLOW.forEach((s, i) => {
+    let cls = reached.has(s) ? 'done' : '';
+    if (s === c.status && !['Resolved', 'Closed'].includes(s)) cls = 'now';
+    htmlStr += '<div class="step-node ' + cls + '"><div class="step-circle">' + (cls === 'done' ? '✓' : icons[i]) + '</div><div class="step-label">' + s + '</div></div>';
+  });
+  htmlStr += '</div>';
+  return htmlStr;
+}
+
+function ladder(c) {
+  const steps = [
+    ['Reminders', c.reminders_sent + '/3', c.reminders_sent > 0],
+    ['Extension', c.extension_used ? 'Used' : 'None', !!c.extension_used],
+    ['L1 Office', c.escalation_level >= 1 ? 'Active' : '—', c.escalation_level >= 1],
+    ['L2 Check', c.escalation_level >= 2 ? 'Pending' : '—', c.escalation_level >= 2],
+    ['L3 CM Desk', c.escalation_level >= 3 ? 'Sent' : '—', c.escalation_level >= 3],
+  ];
+  
+  let htmlStr = '<div style="display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:10px;">';
+  steps.forEach(s => {
+    htmlStr += '<div style="border-radius:10px; padding:10px; font-size:12px; text-align:center; background:' + (s[2] ? '#ffebee' : '#f8fafc') + '; color:' + (s[2] ? '#c62828' : '#718096') + '; border: 1px solid ' + (s[2] ? '#ffcdd2' : '#e2e8f0') + ';"><b style="display:block; font-size:13px; color:#122c34; margin-bottom:2px;">' + s[0] + '</b>' + esc(s[1]) + '</div>';
+  });
+  htmlStr += '</div>';
+  return htmlStr;
+}
+
+function render(j) {
+  const c = j.complaint;
+  const h = j.history;
+  const open = !['Resolved', 'Closed', 'Rejected'].includes(c.status) && c.escalation_level < 3;
+  let extra = '';
+
+  if (c.owner && c.citizen_confirm === 'pending') {
+    extra += '<div class="info-card" style="border-left:6px solid #c62828; background:#fff5f5; margin-bottom:20px;"><h4 style="margin:0 0 6px 0; color:#c62828; font-size:16px;">⚠️ Level-2 Verification Loop</h4><p style="margin:0 0 14px 0; font-size:14px; color:#555;">Is your civic grievance still unresolved? Tap Yes to forward straight to CM Helpdesk.</p><div style="display:flex; gap:8px;"><button class="btn" style="background:#c62828; color:white; border-radius:8px; padding:10px 16px;" onclick="confirmC(true)">Yes, still NOT solved</button><button class="btn ghost" style="border-radius:8px; padding:10px 16px;" onclick="confirmC(false)">It is solved now</button></div></div>';
+  }
+  if (c.owner && c.status === 'Resolved') {
+    extra += '<div class="info-card" style="margin-bottom:24px; border-left: 6px solid #2e7d32; background: #f4faf4;"><h3 style="color:#2e7d32; border:none; padding:0; font-size:1.2rem;">⭐ Feedback Verification Gateway</h3><p style="color:#4a5568; font-size:14px; margin: 4px 0 14px 0;">AI model parses feedback text logs natively. Poor resolution reports auto-trigger reopening loops.</p><div class="stars" id="stars" style="margin-bottom:12px;"><span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span></div><textarea id="fb" rows="2" style="width:100%; border-radius:10px; border:2px solid #cbd5e0; padding:10px; box-sizing:border-box; outline:none;" placeholder="Tell us in any language (e.g., abhi bhi pani nahi aa raha)"></textarea><button class="btn" style="margin-top:12px; background:#2e7d32; color:white; padding:12px 24px; border-radius:10px; border:none; font-weight:bold; cursor:pointer;" onclick="sendFb()">Submit Verification</button></div>';
+  }
+  if (c.repeat_flag) extra += '<div class="info-card" style="border-left:6px solid #ffe082; background:#fffde7; margin-bottom:16px;">🔁 <b>AI Duplicate Flag:</b> ' + esc(c.repeat_flag) + '</div>';
+  if (c.rating) extra += '<div class="info-card" style="background:#e3f2fd; color:#0d47a1; margin-bottom:16px;">Your feedback: ' + '★'.repeat(c.rating) + '☆'.repeat(5 - c.rating) + ' — “' + esc(c.feedback || '') + '”</div>';
+
+  let auditHtml = '';
+  h.forEach(e => {
+    auditHtml += '<div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0;"><div style="font-size:11px; color:#a0aec0; font-weight:700;">' + e.time + ' · ' + esc(e.actor) + '</div><div style="font-size:14px; color:#2d3748; font-weight:600; margin-top:2px;">' + esc(e.action) + '</div>' + (e.note ? '<div style="font-size:12px; color:#718096; background:#f8fafc; padding:4px 8px; border-radius:4px; margin-top:4px;">' + esc(e.note) + '</div>' : '') + '</div>';
+  });
+
+  const mapLink = (c.lat != null && c.lng != null)
+    ? ' <a href="https://www.google.com/maps?q=' + c.lat + ',' + c.lng + '" target="_blank" rel="noopener" style="font-weight:700;">🗺️ map</a>' : '';
+  const locSrc = {gps: 'Live GPS', dropdown: 'Area from list', typed: 'Typed address'}[c.loc_source] || '';
+  const reportLink = (ME && ME.role !== 'citizen' && (c.escalation_level >= 1 || c.repeat_flag || c.reopen_count))
+    ? ' <a class="btn red sm" href="/report/' + c.id + '" target="_blank" style="margin-left:auto;">📑 Accountability Report</a>' : '';
+
+  let outContent = '<div class="stepper-panel"><div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:16px;">';
+  outContent += '<h2 style="font-family:monospace; margin:0; font-size:24px; color:var(--brand-dark);">🆔 ' + esc(c.id) + '</h2>';
+  outContent += '<span class="badge ' + sc(c.status) + '" style="font-weight:bold; padding:4px 10px; border-radius:20px;">' + esc(c.status) + '</span>';
+  outContent += '<span class="badge p-' + esc(c.priority) + '" style="font-weight:bold; padding:4px 10px; border-radius:20px;">' + esc(c.priority) + ' · ' + c.severity + '/100</span>';
+  outContent += reportLink + '</div>';
+
+  if (c.status === 'Rejected') {
+    outContent += '<div class="alert danger">❌ This complaint was rejected by the department.' + (c.remarks ? ' Remark: ' + esc(c.remarks) : '') + '</div>';
+  } else {
+    outContent += stepper(c, h);
+  }
+
+  if (open) {
+    outContent += '<div style="text-align:center; margin-top:22px;"><div class="small muted" style="font-weight:700; text-transform:uppercase; letter-spacing:.05em;">Time left to resolve</div>' +
+      '<div class="countdown" id="cd" style="color:var(--brand-dark);">--:--:--</div>' +
+      '<div class="small muted">Deadline: ' + esc(c.deadline) + '</div></div>';
+  } else if (c.escalation_level >= 3 && !['Resolved', 'Closed'].includes(c.status)) {
+    outContent += '<div class="alert danger" style="margin-top:18px;">🚨 This complaint has been forwarded to the CM Helpdesk with a full accountability report.</div>';
+  }
+  outContent += '<h4 style="margin:22px 0 0; color:var(--brand-dark);">Escalation ladder</h4>' + ladder(c) + '</div>';
+
+  const infoCard = '<div class="info-grid">' +
+    '<div class="info-card"><h3>📋 Complaint details</h3>' +
+      '<div class="kv-row"><span>Problem</span><b style="max-width:62%; text-align:right;">' + esc(c.description) + '</b></div>' +
+      '<div class="kv-row"><span>Location</span><b style="text-align:right;">📍 ' + esc(c.location || '—') + mapLink + (locSrc ? '<div class="small muted" style="font-weight:500;">' + locSrc + '</div>' : '') + '</b></div>' +
+      '<div class="kv-row"><span>AI category</span><b>' + esc(c.category) + ' → ' + esc(c.subtype) + '</b></div>' +
+      '<div class="kv-row"><span>Language</span><b>' + ({en: 'English', hi: 'Hindi', hinglish: 'Hinglish'}[c.language] || esc(c.language || '')) + '</b></div>' +
+      '<div class="kv-row"><span>Registered</span><b>' + esc(c.created_at) + '</b></div>' +
+    '</div>' +
+    '<div class="info-card"><h3>🏢 Responsibility</h3>' +
+      '<div class="kv-row"><span>Department</span><b>' + esc(c.department) + '</b></div>' +
+      '<div class="kv-row"><span>Officer</span><b>' + esc(c.officer) + '</b></div>' +
+      '<div class="kv-row"><span>Contractor</span><b>' + esc(c.contractor || 'Not assigned') + '</b></div>' +
+      '<div class="kv-row"><span>Latest remark</span><b style="max-width:62%; text-align:right;">' + esc(c.remarks || 'No remark yet') + '</b></div>' +
+      '<div class="kv-row"><span>Times reopened</span><b>' + (c.reopen_count || 0) + '</b></div>' +
+      (c.similar_count ? '<div class="kv-row"><span>Linked complaints</span><b style="text-align:right;">' + c.similar_ids.map(esc).join(', ') + '</b></div>' : '') +
+    '</div></div>';
+
+  const audit = '<div class="info-card" style="margin-top:24px;"><h3>🕒 Audit trail</h3>' + auditHtml + '</div>';
+
+  out.innerHTML = extra + outContent + infoCard + audit;
+
+  // --- stars (feedback)
+  let rating = 0;
+  const stars = out.querySelectorAll('#stars span');
+  stars.forEach(sp => sp.onclick = () => {
+    rating = +sp.dataset.v;
+    stars.forEach(x => x.classList.toggle('on', +x.dataset.v <= rating));
+  });
+  window.getRating = () => rating;
+
+  // --- live countdown (server ke clock ke hisaab se, Time Machine ke saath bhi sahi)
+  if (timer) { clearInterval(timer); timer = null; }
+  const cd = document.getElementById('cd');
+  if (cd) {
+    const offset = new Date(c.now.replace(' ', 'T')) - Date.now();
+    const deadline = new Date(c.deadline.replace(' ', 'T'));
+    const tick = () => {
+      let ms = deadline - (Date.now() + offset);
+      const over = ms < 0; ms = Math.abs(ms);
+      const hh = String(Math.floor(ms / 36e5)).padStart(2, '0');
+      const mm = String(Math.floor(ms % 36e5 / 6e4)).padStart(2, '0');
+      const ss = String(Math.floor(ms % 6e4 / 1000)).padStart(2, '0');
+      cd.textContent = (over ? 'Overdue ' : '') + hh + ':' + mm + ':' + ss;
+      cd.style.color = over ? '#c62828' : 'var(--brand-dark)';
+    };
+    tick(); timer = setInterval(tick, 1000);
+  }
+}
+
+async function sendFb() {
+  const r = window.getRating ? window.getRating() : 0;
+  if (!r) { toast('Please tap the stars to give a rating'); return; }
+  try {
+    const ev = await api('/api/feedback/' + current.complaint.id, {rating: r, text: (document.getElementById('fb') || {}).value || ''});
+    toast(ev.genuinely_resolved ? '✅ Thank you! Complaint closed.' : '↺ Complaint reopened with higher priority');
+    load(current.complaint.id);
+  } catch (e) { toast(e.message); }
+}
+
+async function confirmC(stillUnresolved) {
+  try {
+    await api('/api/confirm/' + current.complaint.id, {still_unresolved: !!stillUnresolved});
+    toast(stillUnresolved ? '🚨 Forwarded to the CM Helpdesk' : '✅ Marked as resolved');
+    load(current.complaint.id);
+  } catch (e) { toast(e.message); }
+}
+
+if (INIT_ID) load(INIT_ID);
+</script>
+{% endblock %}

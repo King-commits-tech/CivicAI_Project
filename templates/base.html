@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CivicAI{% endblock %} · Smart Complaint Gateway</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
+  
+  <!-- Embedded High-Tech Base Shell Styles Framework -->
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f3f7f9;
+      font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+    }
+    .tricolor {
+      height: 4px;
+      width: 100%;
+      background: linear-gradient(to right, #ff9933 33%, #ffffff 33%, #ffffff 66%, #128807 66%);
+    }
+    .topbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      padding: 14px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .topbar .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #122c34;
+    }
+    .logo-mark { font-size: 2.2rem; }
+    .logo b { font-size: 1.4rem; font-weight: 800; display: block; line-height: 1; }
+    .logo small { font-size: 11px; color: #718096; font-weight: 600; text-transform: uppercase; }
+    
+    /* Highly Accessible Big Navigation Links Menu */
+    .links { display: flex; align-items: center; gap: 14px; }
+    .links a {
+      text-decoration: none;
+      color: #4a5568;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+    nav.links a:hover { background: #edf2f7; color: #122c34; }
+    nav.links a.active { background: #224854; color: white !important; box-shadow: 0 4px 10px rgba(34,72,84,0.15); }
+    nav.links a.btn { background: #122c34; color: white; border: none; }
+    nav.links a.btn:hover { background: #000; color: white; }
+    
+    /* Notification Indicator Controls */
+    .bell {
+      background: #f0f4f8; border: none; padding: 10px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; position: relative; transition: background 0.2s;
+    }
+    .bell:hover { background: #e2e8f0; }
+    .bell .dot {
+      position: absolute; top: -2px; right: -2px; background: #ff3d00; color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 6px #ff3d00;
+    }
+    
+    /* Futuristic Glassmorphic Notification Panel */
+    .notif-panel {
+      position: absolute; right: 20px; top: 75px; width: 360px; background: white; border-radius: 18px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 15px 40px rgba(0,0,0,0.1); display: none; flex-direction: column; overflow: hidden; z-index: 1001; animation: panelDrop 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .notif-panel.open { display: flex; }
+    .notif-panel h4 { margin: 0; padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #edf2f7; font-size: 15px; color: #122c34; }
+    #notifList { max-height: 320px; overflow-y: auto; }
+    .notif { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; font-size: 13.5px; line-height: 1.4; color: #2d3748; }
+    .notif.unread { background: #f0f7f9; border-left: 4px solid #224854; }
+    .notif b { display: block; color: #122c34; font-size: 14px; margin-bottom: 2px; }
+    .notif .t { font-size: 11px; color: #cbd5e0; margin-top: 4px; font-weight: bold; }
+    
+    @keyframes panelDrop { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<!-- Global Tricolor Strip Node -->
+<div class="tricolor"></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="logo" href="/">
+      <span class="logo-mark">🏛️</span>
+      <div><b>CivicAI</b><small>Aasan Municipality Portal</small></div>
+    </a>
+    
+    <nav class="links">
+      {% if me and me.role == 'citizen' %}
+        <a href="/chat" class="{{ 'active' if request.path=='/chat' }}">💬 Bolkar Shikayat</a>
+        <a href="/my" class="{{ 'active' if request.path=='/my' }}">📋 Meri List</a>
+        <a href="/track" class="{{ 'active' if request.path.startswith('/track') }}">🔎 Track Status</a>
+      {% elif me %}
+        <a href="/admin" class="{{ 'active' if request.path=='/admin' }}">📊 Management Dashboard</a>
+        <a href="/track" class="{{ 'active' if request.path.startswith('/track') }}">🔎 Track Gateway</a>
+      {% else %}
+        <a href="/track">🔎 Track Status</a>
+        <a href="/login">Login</a>
+        <a href="/register" class="btn sm" style="color:#fff">Register</a>
+      {% endif %}
+      
+      {% if me %}
+        <button class="bell" id="bell" title="Notifications Cluster">🔔<span class="dot" id="bellDot" style="display:none;">0</span></button>
+        <a href="/logout" title="{{ me.name }}" style="color: #c62828;">↩ Logout</a>
+      {% endif %}
+    </nav>
+  </div>
+  
+  {% if me %}
+  <div class="notif-panel" id="notifPanel">
+    <h4>🔔 Alerts & Notifications <span class="muted small" style="font-weight: normal; color: #718096;">(App · SMS Log)</span></h4>
+    <div id="notifList"><div class="notif muted">Loading logs...</div></div>
+  </div>
+  {% endif %}
+</header>
+
+{% block body %}{% endblock %}
+
+<script>
+const ME = {{ ({"name": me.name, "role": me.role, "department": me.department} if me else None) | tojson }};
+function esc(s) { return (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function sc(s) { return 's-' + (s || '').replace(/\s+/g, ''); }
+function toast(t) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 3200); }
+async function api(url, body) {
+  const r = await fetch(url, body === undefined ? {} : {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || ('Error ' + r.status));
+  return j;
+}
+function ago(t, now) {
+  const d = (new Date((now || '').replace(' ', 'T')) - new Date(t.replace(' ', 'T'))) / 36e5;
+  if (isNaN(d)) return t;
+  if (d < 1) return Math.max(1, Math.round(d * 60)) + ' min ago';
+  if (d < 48) return Math.round(d) + ' h ago';
+  return Math.round(d / 24) + ' days ago';
+}
+
+{% if me %}
+(function () {
+  const bell = document.getElementById('bell'), panel = document.getElementById('notifPanel'), dot = document.getElementById('bellDot');
+  let lastUnread = -1;
+  async function load() {
+    try {
+      const j = await api('/api/notifications');
+      dot.style.display = j.unread ? 'block' : 'none'; dot.textContent = j.unread;
+      if (lastUnread >= 0 && j.unread > lastUnread && j.items[0]) toast('🔔 ' + j.items[0].title);
+      lastUnread = j.unread;
+      document.getElementById('notifList').innerHTML = j.items.length ? j.items.map(n =>
+        `<div class="notif ${n.is_read ? '' : 'unread'}"><b>${esc(n.title)}</b>${esc(n.message)}
+         <div class="t">${n.time} ${n.complaint_id ? '· <a href="/track/' + n.complaint_id + '">' + n.complaint_id + '</a>' : ''}</div></div>`).join('')
+        : '<div class="notif muted">No notifications yet.</div>';
+    } catch (e) {}
+  }
+  bell.onclick = async (e) => {
+    e.stopPropagation(); panel.classList.toggle('open');
+    if (panel.classList.contains('open')) { await api('/api/notifications/read', {}); dot.style.display = 'none'; lastUnread = 0; }
+  };
+  document.addEventListener('click', e => { if (!panel.contains(e.target)) panel.classList.remove('open'); });
+  load(); setInterval(load, 8000);
+})();
+{% endif %}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

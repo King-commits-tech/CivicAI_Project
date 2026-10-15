@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block body %}
+<div class="wrap"><div class="auth card">
+  <h2>Welcome back 👋</h2>
+  <p class="muted">Citizens, officers and admins all login here.</p>
+  {% include "_flash.html" %}
+  <form method="post">
+    <label>E-mail</label><input name="email" id="email" type="email" required autofocus>
+    <label>Password</label><input name="password" id="pw" type="password" required>
+    <button class="btn" style="width:100%;margin-top:16px">Login</button>
+  </form>
+  <p class="small" style="display:flex;justify-content:space-between;margin-top:12px">
+    <a href="/register">New citizen? Create account</a><a href="/forgot">Forgot password?</a></p>
+  <div class="demo-accounts">
+    <b>Demo accounts</b> (click to fill):<br>
+    👤 Citizen: <code data-e="citizen@demo.com" data-p="demo123">citizen@demo.com</code> / demo123<br>
+    🛡️ Admin (Main Office / CM Helpdesk): <code data-e="admin@civicai.gov" data-p="admin123">admin@civicai.gov</code> / admin123<br>
+    🏢 Officers: <code data-e="water@civicai.gov" data-p="officer123">water@</code>
+    <code data-e="electricity@civicai.gov" data-p="officer123">electricity@</code>
+    <code data-e="roads@civicai.gov" data-p="officer123">roads@</code>
+    <code data-e="sanitation@civicai.gov" data-p="officer123">sanitation@</code>
+    <code data-e="drainage@civicai.gov" data-p="officer123">drainage@</code>
+    <code data-e="safety@civicai.gov" data-p="officer123">safety@</code>
+    <code data-e="health@civicai.gov" data-p="officer123">health@</code> civicai.gov / officer123
+  </div>
+</div></div>
+{% endblock %}
+{% block scripts %}<script>
+document.querySelectorAll('.demo-accounts code').forEach(c => c.onclick = () => { email.value = c.dataset.e; pw.value = c.dataset.p; });
+</script>{% endblock %}

@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+{% block title %}New Complaint | CivicAI Dashboard{% endblock %}
+{% block body %}
+<!-- Embedded Custom UI Customization Framework for Instant Visual Boost -->
+<style>
+  .chat-layout {
+    display: flex;
+    gap: 24px;
+    max-width: 1300px;
+    margin: 20px auto;
+    padding: 0 15px;
+    height: calc(100vh - 140px);
+  }
+  .chatbox {
+    flex: 1.4;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+  .chat-head {
+    background: linear-gradient(135deg, #122c34 0%, #224854 100%);
+    color: white;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 3px solid #00e676;
+  }
+  .bot-avatar {
+    font-size: 2.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 6px;
+    border-radius: 50%;
+    animation: float 3s ease-in-out infinite;
+  }
+  .online {
+    width: 10px;
+    height: 10px;
+    background: #00e676;
+    display: inline-block;
+    border-radius: 50%;
+    margin-right: 6px;
+    box-shadow: 0 0 12px #00e676;
+  }
+  
+  /* Large Buttons for Voice Language Selection */
+  .lang-toggle button {
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+  .lang-toggle button.on, .lang-toggle button:hover {
+    background: white;
+    color: #122c34;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+  .speak-toggle {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.4rem;
+    padding: 10px;
+    border-radius: 50%;
+  }
+  
+  .messages {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    background: #f8fafc;
+  }
+  
+  /* Simplified Examples Area */
+  .examples {
+    padding: 14px 20px;
+    background: #ffffff;
+    border-top: 1px solid #edf2f7;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .examples button {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e0;
+    padding: 10px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4a5568;
+    transition: all 0.2s;
+  }
+  .examples button:hover {
+    background: #e2e8f0;
+    color: #122c34;
+    transform: translateY(-1px);
+  }
+  
+  /* Massive Accessible Composer Bar */
+  .composer {
+    padding: 20px;
+    background: white;
+    border-top: 2px solid #edf2f7;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .composer input {
+    flex: 1;
+    border: 3px solid #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .composer input:focus { border-color: #224854; }
+  
+  /* Giant Action Buttons */
+  .composer button.mic {
+    background: #ffebee;
+    color: #c62828;
+    border: 2px solid #ffcdd2;
+    font-size: 1.8rem;
+    padding: 12px 20px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .composer button.mic:hover { background: #ffcbd2; }
+  
+  #gpsBtn {
+    background: #e3f2fd !important;
+    color: #1565c0 !important;
+    border: 2px solid #bbdefb !important;
+    font-size: 1.8rem;
+    padding: 12px 20px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  #gpsBtn.active-gps {
+    background: #e8f5e9 !important;
+    color: #2e7d32 !important;
+    border-color: #a5d6a7 !important;
+    animation: pulseGlow 1.5s infinite;
+  }
+  .composer .send {
+    background: linear-gradient(135deg, #122c34 0%, #224854 100%);
+    color: white;
+    border: none;
+    padding: 16px 28px;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(18, 44, 52, 0.15);
+  }
+
+  /* Dark Neon AI Brain Block */
+  .brain {
+    flex: 0.9;
+    background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+    color: #f1f5f9;
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.3);
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .brain h3 { margin: 0 0 6px; font-size: 1.3rem; display: flex; align-items: center; color: #38bdf8; }
+  .brain .sub { color: #94a3b8; font-size: 13px; line-height: 1.4; margin-bottom: 20px; }
+  .brain .kw { background: #334155; color: #34d399; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+  #brainBody .empty { text-align: center; margin-top: 50px; color: #64748b; }
+  #brainBody .ic { font-size: 4rem; margin-bottom: 12px; opacity: 0.2; }
+
+  /* Geotag Radar Window Layout */
+  .map-card-wrapper {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 16px;
+    margin-top: 15px;
+    animation: fadeIn 0.4s ease-out;
+  }
+  .map-frame-sim {
+    height: 160px;
+    background: radial-gradient(circle, #1e3c72 10%, #0f172a 80%);
+    border-radius: 12px;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #38bdf8;
+    font-weight: bold;
+    font-size: 13px;
+  }
+  .map-frame-sim::before {
+    content: ''; position: absolute; width: 200%; height: 200%;
+    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .map-radar-pin {
+    width: 16px; height: 14px; background: #ff3d00; border-radius: 50%; position: absolute; z-index: 2;
+    animation: sonar 1.5s infinite;
+  }
+
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  @keyframes sonar { 0% { box-shadow: 0 0 0 0px rgba(255,61,0,0.6); } 100% { box-shadow: 0 0 0 30px rgba(255,61,0,0); } }
+  @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0px rgba(46,125,50,0.4); } 50% { box-shadow: 0 0 0 12px rgba(46,125,50,0.1); } }
+  /* Location picker (📍 My location + area dropdown) - chat.js isse dikhata hai */
+  .loc-picker {
+    align-self: flex-start;
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    background: #ffffff; border: 2px solid #e2e8f0; border-radius: 16px; padding: 10px 12px;
+    max-width: 96%;
+  }
+  .loc-picker button {
+    border: 2px solid #bbdefb; background: #e3f2fd; color: #1565c0; font-weight: 800; font-size: 14px;
+    border-radius: 12px; padding: 10px 14px; cursor: pointer; font-family: inherit;
+  }
+  .loc-picker button:hover { background: #bbdefb; }
+  .loc-picker .lp-use { background: #122c34; color: #fff; border-color: #122c34; }
+  .loc-picker select {
+    width: auto; min-width: 190px; padding: 10px 12px; border: 2px solid #cbd5e0; border-radius: 12px;
+    font-size: 14px; font-weight: 600; color: #2d3748; background: #fff;
+  }
+  .messages { display: flex; flex-direction: column; gap: 10px; }
+  .messages > * { flex-shrink: 0; }
+  .msg a { color: #1565c0; font-weight: 700; }
+  .msg.user a { color: #fff; }
+  .brain .row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
+
+  /* Buttons ka size: style.css ke gol 46px wale rules ko override */
+  .lang-toggle { background: transparent !important; padding: 0 !important; }
+  .composer button.mic, #gpsBtn, .composer .send {
+    width: auto; height: auto; flex: none; white-space: nowrap; line-height: 1.2;
+  }
+  .composer button.mic { font-size: 1.1rem; font-weight: 800; padding: 12px 16px; border-radius: 16px; }
+  #gpsBtn { font-size: 1.1rem; font-weight: 800; padding: 12px 16px; }
+  .composer .send { font-size: 15px; padding: 14px 20px; border-radius: 16px; }
+  .composer .mic.rec { background: #c62828; color: #fff; border-color: #c62828; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  @media (max-width: 980px) {
+    .chat-layout { flex-direction: column; height: auto; }
+    .chatbox { min-height: 78vh; }
+    .brain { max-height: none; }
+    .composer { flex-wrap: wrap; }
+    .composer input { min-width: 100%; order: -1; }
+  }
+</style>
+
+<div class="wrap chat-layout">
+  <!-- Main Chat Box Container -->
+  <section class="chatbox">
+    <div class="chat-head">
+      <div class="bot-avatar">🤖</div>
+      <div>
+        <b style="font-size: 1.3rem;">CivicAI Assistant</b>
+        <div class="small" style="color: #00e676; font-weight: 700;"><span class="online"></span>Bolkar Shikayat Darj Karein / बोलकर शिकायत दर्ज करें</div>
+      </div>
+      <div class="lang-toggle" style="margin-left: auto; display: flex; gap: 8px;">
+        <button data-l="en-IN" class="on">🎤 EN</button>
+        <button data-l="hi-IN">🎤 हिंदी</button>
+      </div>
+      <button class="speak-toggle" id="speakBtn" title="Awaaz Chalu/Band Karein" style="margin-left: 6px;">🔇</button>
+    </div>
+    
+    <div class="messages" id="messages"></div>
+    
+    <!-- Dynamic Helper Quick Buttons -->
+    <div class="examples" id="examples">
+      <span style="font-weight: 800; color: #718096; margin-right: 6px; font-size: 14px;">Udaaharan (उदाहरण):</span>
+      <button>Transformer is sparking near the school in Palasia since last night!</button>
+      <button>Vijay Nagar me 3 din se pani nahi aa raha</button>
+      <button>सड़क पर बड़े गड्ढे हैं राजवाड़ा के पास</button>
+      <button>kachra nahi uthaya</button>
+    </div>
+    
+    <!-- Action Composer Form Frame -->
+    <form class="composer" id="composer">
+      <!-- Giant Mic for Illiterate/Elderly users -->
+      <button type="button" class="mic" id="mic" title="Bolkar bataiye (बोलकर बताएं)">🎤 MIC</button>
+      
+      <!-- Giant GPS Target Button -->
+      <button type="button" id="gpsBtn" onclick="captureAndSendLiveLocation()" title="Live Location Pin Karein">📍 MAP</button>
+      
+      <input id="input" autocomplete="off" placeholder="Apni samasya likhein ya MIC par click karke bolein...">
+      <button class="btn send" type="submit">➤ Bhejein</button>
+    </form>
+  </section>
+
+  <!-- Side Analysis Grid Panel Dashboard -->
+  <aside class="brain" id="brain">
+    <h3>🧠 AI Brain Core Reasoning <span class="kw" style="margin-left:auto; background:#1e293b; color:#38bdf8;">Live Processing</span></h3>
+    <div class="sub">This engine parses text semantics, triggers priority multipliers, and routes automatically.</div>
+    <div id="brainBody">
+      <div class="empty"><div class="ic">👁️‍🗨️</div>Waiting for citizen payload...<br>बोलें या लिखें, AI का दिमाग यहाँ दिखेगा।</div>
+    </div>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- chat.js me hi: chat, voice (MIC), GPS (📍 MAP), area dropdown, AI brain panel, submit -->
+<script src="{{ url_for('static', filename='chat.js') }}"></script>
+{% endblock %}

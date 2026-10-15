@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Apni Shikayatein | CivicAI{% endblock %}
+{% block body %}
+<!-- Embedded Enterprise Layout Framework for Advanced Visual Cards Hierarchy -->
+<style>
+  :root {
+    --brand-dark: #122c34;
+    --brand-light: #224854;
+    --card-shadow: 0 10px 25px rgba(0,0,0,0.03);
+    --border-accent: rgba(0, 0, 0, 0.06);
+  }
+  
+  .my-container {
+    max-width: 950px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  
+  .page-header-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .page-header-strip h2 {
+    margin: 0;
+    color: var(--brand-dark);
+    font-weight: 800;
+    font-size: 2rem;
+    letter-spacing: -0.5px;
+  }
+  .new-ticket-trigger {
+    background: linear-gradient(135deg, #122c34 0%, #224854 100%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 15px;
+    box-shadow: 0 4px 12px rgba(18, 44, 52, 0.15);
+    transition: all 0.2s ease;
+  }
+  .new-ticket-trigger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(18, 44, 52, 0.25);
+  }
+  
+  /* Giant Premium Structural Cards Replacing Tables */
+  .complaint-card {
+    background: white;
+    border-left: 8px solid #cbd5e0;
+    border-radius: 18px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
+    border-top: 1px solid var(--border-accent);
+    border-right: 1px solid var(--border-accent);
+    border-bottom: 1px solid var(--border-accent);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .complaint-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(18, 44, 52, 0.08);
+  }
+  
+  .card-left { flex: 1; min-width: 280px; }
+  .card-meta-line { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .ticket-id { font-family: monospace; font-size: 16px; font-weight: 800; color: var(--brand-light); }
+  .timestamp-tag { font-size: 12px; color: #a0aec0; font-weight: 600; }
+  
+  .ticket-desc { font-size: 16px; color: #2d3748; font-weight: 600; line-height: 1.5; margin-bottom: 10px; }
+  .location-pill { font-size: 13px; color: #4a5568; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+  
+  /* Adaptive Status Indicators Layout Engine */
+  .status-block { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; text-align: right; }
+  .badge-frame { padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  
+  /* Status Context Variants Colors */
+  .status-Resolved, .status-Closed { background: #e8f5e9; color: #2e7d32; }
+  .status-Assigned, .status-UnderReview, .status-ActionInitiated { background: #e3f2fd; color: #1565c0; }
+  .status-Escalated { background: #ffebee; color: #c62828; animation: pulseGlow 2s infinite; }
+  
+  .priority-dot { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #718096; }
+  
+  .alert-hint-badge { font-size: 12px; font-weight: 700; color: #ff8a3d; background: #fff3e0; padding: 2px 8px; border-radius: 4px; }
+  .feedback-hint-badge { font-size: 12px; font-weight: 700; color: #2e7d32; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; }
+  
+  .no-data-card { text-align: center; padding: 60px 40px; background: white; border-radius: 20px; box-shadow: var(--card-shadow); border: 1px solid var(--border-accent); }
+  .no-data-card .icon { font-size: 3.5rem; margin-bottom: 16px; opacity: 0.3; }
+
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0px rgba(198, 40, 40, 0.4); }
+    100% { box-shadow: 0 0 0 10px rgba(198, 40, 40, 0); }
+  }
+</style>
+
+<div class="my-container">
+  <!-- Page Header Operational Row Component -->
+  <div class="page-header-strip">
+    <h2>📋 Apni Shikayatein <span>(आपकी शिकायतें)</span></h2>
+    <a class="new-ticket-trigger" href="/chat">➕ New Complaint</a>
+  </div>
+  
+  {% if rows %}
+    <!-- Loop through each database complaint entry and render high-end custom card elements -->
+    {% for r in rows %}
+      <div class="complaint-card" onclick="location.href='/track/{{ r.id }}'" 
+           style="{% if r.status in ['Resolved','Closed'] %}border-color: #2e7d32;{% elif r.escalation_level > 0 %}border-color: #c62828;{% else %}border-color: #1565c0;{% endif %}">
+        
+        <div class="card-left">
+          <div class="card-meta-line">
+            <span class="ticket-id">🆔 {{ r.id }}</span>
+            <span class="timestamp-tag">⏱️ {{ r.created_at[:16] }}</span>
+          </div>
+          <div class="ticket-desc">"{{ r.description[:85] }}{{ '...' if r.description|length > 85 }}"</div>
+          <div>
+            <span class="location-pill">📍 {{ r.location }}</span> &nbsp;·&nbsp;
+            <span class="priority-dot" style="color: #4a5568;">🏢 {{ r.department }}</span>
+          </div>
+        </div>
+        
+        <!-- Right Column Metadata Status Anchors -->
+        <div class="status-block">
+          <span class="badge-frame {% if r.escalation_level > 0 %}status-Escalated{% else %}status-{{ r.status|replace(' ', '') }}{% endif %}">
+            {% if r.escalation_level > 0 %}🚨 Escalated L{{ r.escalation_level }}{% else %}{{ r.status }}{% endif %}
+          </span>
+          <span class="priority-dot">Priority: <b style="color: #142850;">{{ r.priority }}</b></span>
+          
+          <!-- Conditional Micro-Action Tags for Better Citizen Clarity -->
+          {% if r.citizen_confirm == 'pending' %}
+            <div class="alert-hint-badge">⚠️ Action Required</div>
+          {% endif %}
+          {% if r.status == 'Resolved' %}
+            <div class="feedback-hint-badge">⭐ Tap to give feedback</div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <!-- Empty State fallbacks layout container component window -->
+    <div class="no-data-card">
+      <div class="icon">📭</div>
+      <h3 style="margin: 0 0 6px 0; color: var(--brand-dark);">No complaints registered yet</h3>
+      <p style="margin: 0 0 20px 0; color: #718096; font-size: 14px;">Aapne abhi tak koi shikayat darj nahi ki hai. Apni bhasha mein bolkar pehli shikayat karein.</p>
+      <a class="new-ticket-trigger" href="/chat" style="padding: 10px 20px; font-size: 14px;">Register First Complaint →</a>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

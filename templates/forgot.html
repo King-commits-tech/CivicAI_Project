@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Reset password{% endblock %}
+{% block body %}
+<div class="wrap"><div class="auth card">
+  <h2>Reset password</h2>
+  <p class="muted">Enter your registered e-mail and mobile number to set a new password.</p>
+  {% include "_flash.html" %}
+  <form method="post">
+    <label>E-mail</label><input name="email" type="email" required>
+    <label>Registered mobile</label><input name="mobile" required maxlength="10">
+    <label>New password</label><input name="password" type="password" required minlength="6">
+    <button class="btn" style="width:100%;margin-top:16px">Change password</button>
+  </form>
+  <p class="small" style="margin-top:12px"><a href="/login">Back to login</a></p>
+</div></div>
+{% endblock %}

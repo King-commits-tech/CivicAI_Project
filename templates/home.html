@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body %}
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="chip">🇮🇳 Smart Governance · SAGE University Micro Project</span>
+      <h1 style="margin-top:14px">Complain in <span>your own language.</span><br>AI does the rest.</h1>
+      <p class="lead">No long forms. Just type or <b>speak</b> your problem in English, हिंदी or Hinglish.
+        CivicAI understands it, finds the right department, gives you a tracking ID, sets a deadline — and
+        <b>escalates automatically</b> if nobody acts.</p>
+      <div class="cta">
+        <a class="btn lg" href="{{ '/chat' if me and me.role=='citizen' else '/admin' if me else '/login' }}">💬 Register a Complaint</a>
+        <a class="btn lg ghost" href="/login">🛡️ Officer / Admin Login</a>
+      </div>
+      <form class="track-box" action="/track">
+        <input name="id" placeholder="Track: enter complaint ID e.g. CIV-2609-WTR-1234">
+        <button class="btn ghost">Track</button>
+      </form>
+      <div class="chip-row">
+        <span class="chip">🎤 Voice input</span><span class="chip">🧠 Explainable AI</span>
+        <span class="chip">⏱️ Auto deadlines</span><span class="chip">🚨 3-level escalation</span><span class="chip">🔁 AI reopens fake fixes</span>
+      </div>
+    </div>
+    <div class="demo-phone">
+      <div class="muted small" style="font-weight:700">CivicAI Assistant <span class="online"></span>online</div>
+      <div class="b u">Vijay Nagar me 3 din se pani nahi aa raha 😡</div>
+      <div class="b a">Samajh gaya ✅ Ye <b>Water Supply</b> ki problem hai (<b>Long-term Supply Failure</b>).<br>ℹ️ 2 aur logon ne yahi report kiya hai — priority badh gayi.</div>
+      <div class="b a" style="background:#eef0ff">🧠 Severity <b>51/100 → High</b><br>🏢 Water Supply Department<br>⏱️ Deadline: 18 hours</div>
+      <div class="b a">🎉 ID: <b style="color:var(--brand)">CIV-2609-WTR-4821</b> — SMS bhej diya gaya.</div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="stats-strip">
+    <div class="stat"><div class="n">{{ stats.n or 0 }}</div><div class="l">Complaints handled</div></div>
+    <div class="stat"><div class="n">{{ stats.r or 0 }}</div><div class="l">Resolved</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">Languages understood</div></div>
+    <div class="stat"><div class="n">7</div><div class="l">Departments auto-routed</div></div>
+  </div>
+
+  <h2 class="section-title">How it works</h2>
+  <div class="flow">
+    <div class="step"><div class="num">1</div><b>Speak / type</b>Citizen tells the problem in any language.</div>
+    <div class="step"><div class="num">2</div><b>AI understands</b>Category, sub-type, location, duration.</div>
+    <div class="step"><div class="num">3</div><b>Severity score</b>0–100 from 5 factors → priority.</div>
+    <div class="step"><div class="num">4</div><b>Auto-routed</b>Right department + deadline + unique ID.</div>
+    <div class="step"><div class="num">5</div><b>Monitored</b>3 reminders → 1 extension → escalation.</div>
+    <div class="step"><div class="num">6</div><b>Verified</b>AI reads feedback; reopens if not really fixed.</div>
+  </div>
+
+  <h2 class="section-title">What makes it smart</h2>
+  <div class="features">
+    <div class="feature"><div class="ic">🗣️</div><h3>Multilingual chatbot + voice</h3><p>Understands English, Hindi (देवनागरी) and Hinglish. Replies in the same language and can read replies aloud.</p></div>
+    <div class="feature"><div class="ic">🧠</div><h3>Explainable AI brain</h3><p>A live panel shows exactly why the AI chose a department — top keywords, confidence and the severity breakdown.</p></div>
+    <div class="feature"><div class="ic">🔗</div><h3>Duplicate & repeat detection</h3><p>Similar complaints from the same area are linked and boost priority. A problem that returns after "resolved" is flagged.</p></div>
+    <div class="feature"><div class="ic">🚨</div><h3>Multi-level escalation</h3><p>Main Office → citizen confirmation → CM Helpdesk with an auto-generated accountability report.</p></div>
+    <div class="feature"><div class="ic">📈</div><h3>Predictive hotspots</h3><p>Repeated issues at one place trigger early warnings — e.g. "possible pipeline failure in Vijay Nagar".</p></div>
+    <div class="feature"><div class="ic">🏅</div><h3>Department scorecards</h3><p>Every department gets a performance grade from resolution time, escalations, reopen rate and ratings.</p></div>
+  </div>
+</div>
+<footer><div class="wrap">CivicAI — AI-Driven Complaint Management System · B.Tech (Advance CSE) Micro Project, SAGE University Indore · Gulshan Jhala (25ADV8CSE0010) · Guided by Dr. Ati Jain &amp; Prof. Vaishali Bajpai</div></footer>
+{% endblock %}
