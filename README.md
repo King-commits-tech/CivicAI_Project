@@ -131,3 +131,4 @@ CivicAI/
 | Voice button does nothing | Use **Google Chrome or Microsoft Edge** and allow microphone access |
 | Port 5000 is busy | Close the other app, or run `set PORT=5050` then `python app.py` |
 | Want fresh data | Run `RESET_DEMO_DATA.bat` |
+# CivicAI_Project
